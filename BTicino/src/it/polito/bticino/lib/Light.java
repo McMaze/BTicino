@@ -2,40 +2,41 @@ package it.polito.bticino.lib;
 
 import java.util.*;
 import it.polito.bticino.connessione.BTicinoSocket;
+import it.polito.bticino.lib.LightStatus.LightStatusName;
 
+public class Light{
 
-public class Light implements ObjectBTicino{
-
-	public enum LightStatus {
-		ON, OFF, P60;
-	}
-	
-	
 	private final int who = 1;
-	private Map<LightStatus, Integer> what;
+	private String name;
+	private Map<LightStatusName, LightStatus> what;
 	private int where;
+	private BTicinoSocket sock;
 	
 	private LightStatus status;
 	
-	public Light(int where) {
-		what= new HashMap<LightStatus, Integer>();
-		what.put(LightStatus.ON,1);
-		what.put(LightStatus.OFF,0);
-		what.put(LightStatus.P60, 6);
+	public Light(int where, String name, BTicinoSocket sock) {
+		what= new HashMap<LightStatusName, LightStatus>();
+		what.put(LightStatusName.ON, new LightStatus(LightStatusName.ON, 1));
+		what.put(LightStatusName.OFF, new LightStatus(LightStatusName.OFF, 0));
 		
 		this.where=where;
+		this.name = name;
+		this.sock = sock;
 	}
 	
 
-	@Override
 	public int getWho() {
 		return who;
 	}
 	
 
-	@Override
 	public int getWhere() {
 		return where;
+	}
+	
+	
+	public String getLightName() {
+		return name;
 	}
 	
 	public LightStatus getStato() {
@@ -48,24 +49,15 @@ public class Light implements ObjectBTicino{
 	}
 	
 	public void TurnOn() { 
-		BTicinoSocket sock = new BTicinoSocket();
-		boolean on = sock.sendMessage(who, what.get(LightStatus.ON), where);
-		if (on == true) {
-			this.setStato(LightStatus.ON);
-		}
-		sock.close();
+		sock.sendMessage(who, what.get(LightStatusName.ON).getNumber(), where);
 	}
 	
 	public void TurnOff() {
-		BTicinoSocket sock = new BTicinoSocket();
-		boolean off = sock.sendMessage(who, what.get(LightStatus.OFF), where);
-		if (off == true) {
-			this.setStato(LightStatus.OFF);
-		}
-		sock.close();
+		sock.sendMessage(who, what.get(LightStatusName.OFF).getNumber(), where);
+		
 	}
 
-	public Map<LightStatus, Integer> getWhat() {
+	public Map<LightStatusName, LightStatus> getWhat() {
 		return what;
 	}
 

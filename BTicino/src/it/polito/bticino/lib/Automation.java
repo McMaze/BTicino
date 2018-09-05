@@ -2,43 +2,45 @@ package it.polito.bticino.lib;
 
 import java.util.*;
 import it.polito.bticino.connessione.BTicinoSocket;
+import it.polito.bticino.lib.AutomationStatus.AutomationStatusName;
 
 
-public class Automation implements ObjectBTicino{
-
-	public enum AutomationStatus{
-		STOP, UP, DOWN;
-		
-	}
+public class Automation {
 	
 	private final int who= 2;
 	
-	private Map<AutomationStatus, Integer> what;
+	private Map<AutomationStatusName, AutomationStatus> what;
 	private int where;
-	
-	private BTicinoSocket sock;
+	private String name;
 	private AutomationStatus status;
+	private BTicinoSocket sock;
 	
 	
-	public Automation(int where) {
+	public Automation(int where, String name , BTicinoSocket sock) {
 		
 		
-		what = new HashMap<AutomationStatus, Integer>();
-		what.put(AutomationStatus.UP, 1);
-		what.put(AutomationStatus.DOWN, 2);
-		what.put(AutomationStatus.STOP, 0);
+		what = new TreeMap<AutomationStatusName, AutomationStatus>();
+		what.put(AutomationStatusName.UP, new AutomationStatus(AutomationStatusName.UP, 1));
+		what.put(AutomationStatusName.DOWN, new AutomationStatus(AutomationStatusName.DOWN, 2));
+		what.put(AutomationStatusName.STOP, new AutomationStatus(AutomationStatusName.STOP, 0));
 		
 		this.where = where;
+		this.name = name;
+		this.sock = sock;
 	}
 	
-	@Override
+
 	public int getWho() {
 		return who;
 	}
 	
-	@Override
+
 	public int getWhere() {
 		return where;
+	}
+	
+	public String getAutomationName() {
+		return name;
 	}
 	
 	public AutomationStatus getStato() {
@@ -51,32 +53,19 @@ public class Automation implements ObjectBTicino{
 	
 	
 	public void up() {
-		BTicinoSocket sock = new BTicinoSocket();
-		boolean up = sock.sendMessage(who, what.get(AutomationStatus.UP), where);
-		if (up==true) {
-			status = AutomationStatus.UP;
-		}
-		sock.close();
+		sock.sendMessage(who, what.get(AutomationStatusName.UP).getNumber(), where);
+		
 	}
 	
 	public void down() {
-		BTicinoSocket sock = new BTicinoSocket();
-		boolean down = sock.sendMessage(who, what.get(AutomationStatus.DOWN), where);
-		if (down ==true) {
-			status = AutomationStatus.DOWN;
-		}
-		sock.close();
+		sock.sendMessage(who, what.get(AutomationStatusName.DOWN).getNumber(), where);
 	}
 
 	public void stop() {
-		sock = new BTicinoSocket();
-		boolean stop = sock.sendMessage(who, what.get(AutomationStatus.STOP), where);
-		if (stop==true) {
-			status = AutomationStatus.STOP;
-		}
+		sock.sendMessage(who, what.get(AutomationStatusName.STOP).getNumber(), where);
 	}
 
-	public Map<AutomationStatus, Integer> getWhat() {
+	public Map<AutomationStatusName, AutomationStatus> getWhat() {
 		return what;
 	}
 

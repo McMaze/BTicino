@@ -1,5 +1,6 @@
 package it.polito.bticino.main;
 	
+import it.polito.bticino.lib.Model;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;

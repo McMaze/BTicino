@@ -14,8 +14,6 @@ public class BTicinoSocket extends Socket{
 	private String hostIP = "192.168.0.35";
 	private int port = 20000;
 
-	private static String ACK = "*#*1##";
-	private static String NACK = "*#*0##";
 	
 	/**
 	 * BTicinoSocket apre la connessione, solo per inviare messaggi
@@ -27,8 +25,6 @@ public class BTicinoSocket extends Socket{
 		    if (!sock.isConnected())
 		    		System.err.println("Non connesso");
 		    
-		  
-		    
 		} catch ( java.net.UnknownHostException e ) {
 		// Il nome dell'host non e' valido    
 		    System.out.println("Can't find host."); 
@@ -39,6 +35,47 @@ public class BTicinoSocket extends Socket{
 		} 
 	}
 
+	
+	
+	public boolean sendMessage(String message) {
+		
+		// Crea il messaggio da inviare al server BTicino
+		String msg= message;
+		
+		try {
+			// Viene aperto il socket con indirizzo IP e la relativa porta per connettersi al server
+			 if (!sock.isConnected())
+				 sock = new BTicinoSocket();
+			
+			// Viene aperto un output stream connesso alla socket
+			DataOutputStream outToServer = new DataOutputStream(sock.getOutputStream());
+			
+			// Viene creato un input strem connesso alla socket
+			BufferedReader bf = new BufferedReader(new InputStreamReader(sock.getInputStream()));
+			
+			// Viene settato il messaggio/riga da inviare al server
+			outToServer.writeBytes(msg);
+			
+			// Viene stampato l'input stream dal server
+			String messageModified = bf.readLine();
+			
+			System.out.println(messageModified);
+			InputReader ir = new InputReader();
+			boolean risposta = ir.readMessage(messageModified);
+			
+			
+			return risposta;
+			
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+			return false;
+		} catch (IOException e) {
+			e.printStackTrace();
+			return false;
+		}
+	
+	}
+	
 	/**
 	 * Metodo per inviare un messaggio tramite BTicinoSocket
 	 * 
@@ -70,10 +107,12 @@ public class BTicinoSocket extends Socket{
 			// Viene stampato l'input stream dal server
 			String messageModified = bf.readLine();
 			
-			//System.out.println(messageModified);
-			if (messageModified.compareTo(ACK)==0)
-				return true;
-			return false;
+			System.out.println(messageModified);
+			InputReader ir = new InputReader();
+			boolean risposta = ir.readMessage(messageModified);
+			
+			return risposta;
+			
 			
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
@@ -112,7 +151,8 @@ public class BTicinoSocket extends Socket{
 			// Viene stampato l'input stream dal server
 			String messageModified = bf.readLine();
 			System.out.println(messageModified);
-			risultato = this.readMessageInput(messageModified);
+			sock.close();
+			//risultato = this.readInput(messageModified);
 		
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
@@ -123,41 +163,8 @@ public class BTicinoSocket extends Socket{
 		return risultato;
 	}
 		
-	private List<String> readMessageInput(String messageModified){
-		if (messageModified.startsWith(ACK) == true && messageModified.endsWith(ACK)==true) {
-			messageModified = messageModified.replace(ACK, "");
-		}
-		List<String> lista = new ArrayList<String>();
-		String input ="";
-		String stringa = "";
-		StringTokenizer st = new StringTokenizer(messageModified, "*");
-		try {
-			while( (input=st.nextToken()) !=null  || st.nextToken().compareTo("#")==0) {
-				stringa += "*"+input;
-				
-				/*if (stringa.compareTo(ACK )==0) {
-					stringa = null;
-					stringa = "";
-					
-				}
-				if (stringa.compareTo(NACK )==0) {
-					stringa = null;
-					stringa = "";
-					
-				}*/
-				
-				if (stringa.startsWith("*") && stringa.endsWith("##") ) {
-					lista.add(stringa);
-					stringa=null;
-					stringa="";
-				}
-				
-			}	
-		} catch(NoSuchElementException e) {
-			
-		}
-		return lista;
-	}
+
+	
 		
 
 	/**
