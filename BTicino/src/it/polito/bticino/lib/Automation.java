@@ -1,9 +1,7 @@
 package it.polito.bticino.lib;
 
 import java.util.*;
-import it.polito.bticino.connessione.BTicinoSocket;
 import it.polito.bticino.lib.AutomationStatus.AutomationStatusName;
-
 
 public class Automation {
 	
@@ -13,10 +11,10 @@ public class Automation {
 	private int where;
 	private String name;
 	private AutomationStatus status;
-	private BTicinoSocket sock;
+	private Model model;
 	
 	
-	public Automation(int where, String name , BTicinoSocket sock) {
+	public Automation(int where, String name , Model model) {
 		
 		
 		what = new TreeMap<AutomationStatusName, AutomationStatus>();
@@ -26,7 +24,7 @@ public class Automation {
 		
 		this.where = where;
 		this.name = name;
-		this.sock = sock;
+		this.model = model;
 	}
 	
 
@@ -53,16 +51,16 @@ public class Automation {
 	
 	
 	public void up() {
-		sock.sendMessage(who, what.get(AutomationStatusName.UP).getNumber(), where);
+		model.getSocket().sendMessage(who, what.get(AutomationStatusName.UP).getNumber(), where);
 		
 	}
 	
 	public void down() {
-		sock.sendMessage(who, what.get(AutomationStatusName.DOWN).getNumber(), where);
+		model.getSocket().sendMessage(who, what.get(AutomationStatusName.DOWN).getNumber(), where);
 	}
 
 	public void stop() {
-		sock.sendMessage(who, what.get(AutomationStatusName.STOP).getNumber(), where);
+		model.getSocket().sendMessage(who, what.get(AutomationStatusName.STOP).getNumber(), where);
 	}
 
 	public Map<AutomationStatusName, AutomationStatus> getWhat() {

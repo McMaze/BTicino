@@ -8,7 +8,7 @@ import it.polito.bticino.lib.Who.WhoName;
 public class Model {
 
 	
-	private static BTicinoSocket sock;
+	public BTicinoSocket sock;
 	private Map<WhoName, Who> who;
 	
 	private Light luceAll;
@@ -21,20 +21,27 @@ public class Model {
 	public Model() {
 		
 		sock = new BTicinoSocket();
-		sock.sendMessage("*99*0##");
-		who = new TreeMap<>();
-		//aggiungo impianto luci
-		who.put(WhoName.LIGHTING, new Who(WhoName.LIGHTING, 1));
-		//aggiungo impianto automazione
-		who.put(WhoName.AUTOMATION, new Who(WhoName.AUTOMATION, 2));
 		
-		luceAll = new Light(1, "lights", sock);
-		luce1 = new Light(1, "light1", sock);
-		luce2 = new Light(1, "light2", sock);
-		luce3 = new Light(1, "light3", sock);
+		//Invio il messaggio per stabilire una sessione di comandi
+		boolean sessioneComandi = sock.sendMessage("*99*0##");
 		
-		tapparella = new Automation(21, "tapparella", sock);
-		
+
+		if (sessioneComandi == true) {
+			who = new TreeMap<>();
+			//aggiungo impianto luci
+			who.put(WhoName.LIGHTING, new Who(WhoName.LIGHTING, 1));
+			//aggiungo impianto automazione
+			who.put(WhoName.AUTOMATION, new Who(WhoName.AUTOMATION, 2));
+			
+			luceAll = new Light(1, "lights", this);
+			luce1 = new Light(1, "light1", this);
+			luce2 = new Light(1, "light2", this);
+			luce3 = new Light(1, "light3", this);
+			
+			tapparella = new Automation(21, "tapparella", this);
+		} else {
+			System.err.println("Impossibile stabilire una sessione di comandi");
+		}
 	}
 	
 	
@@ -72,11 +79,9 @@ public class Model {
 		return who;
 	}
 
-
-
-
-	
-	
+	public BTicinoSocket getSocket() {
+		return this.sock;
+	}
 
 	
 }

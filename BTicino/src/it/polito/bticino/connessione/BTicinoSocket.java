@@ -4,9 +4,10 @@ import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.*;
+
 
 public class BTicinoSocket extends Socket{
 	
@@ -24,7 +25,7 @@ public class BTicinoSocket extends Socket{
 			sock = new Socket(hostIP, port);
 		    if (!sock.isConnected())
 		    		System.err.println("Non connesso");
-		    
+		    		
 		} catch ( java.net.UnknownHostException e ) {
 		// Il nome dell'host non e' valido    
 		    System.out.println("Can't find host."); 
@@ -38,6 +39,7 @@ public class BTicinoSocket extends Socket{
 	
 	
 	public boolean sendMessage(String message) {
+		
 		
 		// Crea il messaggio da inviare al server BTicino
 		String msg= message;
@@ -59,12 +61,14 @@ public class BTicinoSocket extends Socket{
 			// Viene stampato l'input stream dal server
 			String messageModified = bf.readLine();
 			
+			
 			System.out.println(messageModified);
-			InputReader ir = new InputReader();
-			boolean risposta = ir.readMessage(messageModified);
-			
-			
-			return risposta;
+			if (messageModified != null) {
+				InputReader ir = new InputReader();
+				boolean risposta = ir.readMessage(messageModified);
+				return risposta;
+			}
+			return false;
 			
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
@@ -88,6 +92,8 @@ public class BTicinoSocket extends Socket{
 		
 		// Crea il messaggio da inviare al server BTicino
 		String message= "*"+who+"*"+what+"*"+where+"##";
+	
+		
 		try {
 			
 
@@ -107,11 +113,15 @@ public class BTicinoSocket extends Socket{
 			// Viene stampato l'input stream dal server
 			String messageModified = bf.readLine();
 			
-			System.out.println(messageModified);
-			InputReader ir = new InputReader();
-			boolean risposta = ir.readMessage(messageModified);
 			
-			return risposta;
+			System.out.println(messageModified);
+			if (messageModified != null) {
+				InputReader ir = new InputReader();
+				boolean risposta = ir.readMessage(messageModified);
+				return risposta;
+			}
+			
+			return false;
 			
 			
 		} catch (UnknownHostException e) {
@@ -124,12 +134,12 @@ public class BTicinoSocket extends Socket{
 	
 	}
 	
-	
 	/**
-	 * Metodo per interrogare sullo stato di tutti gli oggetti
+	 * Metodo per interrogare sullo stato di tutti gli oggetti 
 	 * @param who
 	 * @return
 	 */
+	/*
 	public List<String> getStati() {
 		String message = "*#1*1##*#2*21##";
 		List<String> risultato = new ArrayList<String>();
@@ -151,7 +161,6 @@ public class BTicinoSocket extends Socket{
 			// Viene stampato l'input stream dal server
 			String messageModified = bf.readLine();
 			System.out.println(messageModified);
-			sock.close();
 			//risultato = this.readInput(messageModified);
 		
 		} catch (UnknownHostException e) {
@@ -162,9 +171,7 @@ public class BTicinoSocket extends Socket{
 		}
 		return risultato;
 	}
-		
-
-	
+	*/
 		
 
 	/**

@@ -11,10 +11,11 @@ public class InputReader {
 	private static String NACK = "*#*0##";
 	private String message;
 	
-
 	
-	public boolean readMessage(String message) {
-		
+	
+	//lettura risposte del server, vengono salvati in una lista, comunque questo metodo serve solo a vedere se il server
+	//invia una risposta negativa o positiva, non per interpretare gli stati dei dispositivi
+	public boolean readMessage(String message) {	
 		this.message= message;
 		
 		boolean risposta = false;
@@ -50,12 +51,5 @@ public class InputReader {
 	public String getMessage() {
 		return message;
 	}
-
-	public void setMessage(String message) {
-		this.message = message;
-	}
-	
-
-
 
 }
