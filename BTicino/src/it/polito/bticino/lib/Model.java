@@ -23,10 +23,10 @@ public class Model {
 		sock = new BTicinoSocket();
 		
 		//Invio il messaggio per stabilire una sessione di comandi
-		boolean sessioneComandi = sock.sendMessage("*99*0##");
+		int sessioneComandi = sock.sendMessage("*99*9##");
 		
 
-		if (sessioneComandi == true) {
+		if (sessioneComandi != -1) {
 			who = new TreeMap<>();
 			//aggiungo impianto luci
 			who.put(WhoName.LIGHTING, new Who(WhoName.LIGHTING, 1));
@@ -44,11 +44,6 @@ public class Model {
 		}
 	}
 	
-	
-	/*public void getStati() {
-		List<String> stati = new ArrayList<String>(sock.getStati());
-	}*/
-
 
 	public Light getLuceAll() {
 		return luceAll;
