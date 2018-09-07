@@ -113,6 +113,7 @@ public class BTicinoController {
     
     void setModel(Model model) {
     		this.model = model;
+    		model.readSockMonitor();
     }
 
 

@@ -7,21 +7,22 @@ import java.io.PrintWriter;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 
-public class TestConnection {
-	
+public class TestConnectionSockMonitor {
+
 	private static String hostIP = "192.168.0.35";
 	private static int port = 20000;
 
 	public static void main(String[] args) {
-		Socket sock = new Socket();
+	
+		Socket sockM = new Socket();
 		try {
-			sock.connect(new InetSocketAddress(hostIP, port), 0);
-			
-			 if (!sock.isConnected())
+			sockM.connect(new InetSocketAddress(hostIP, port));
+
+			 if (!sockM.isConnected())
 		    		System.err.println("Non connesso");
 		    else {
-		    		PrintWriter outToServer = new PrintWriter(sock.getOutputStream());
-		    		InputStreamReader inputStreamReader = new InputStreamReader(sock.getInputStream());
+		    		PrintWriter outToServer = new PrintWriter(sockM.getOutputStream());
+		    		InputStreamReader inputStreamReader = new InputStreamReader(sockM.getInputStream());
 		    		BufferedReader bf = new BufferedReader(inputStreamReader);
 		    		
 		    		// ack di apertura connessione
@@ -30,31 +31,35 @@ public class TestConnection {
 		    		System.out.println("apertura connessione " + resp + " - " + String.copyValueOf(cbs));
 		    		
 		    		if(resp != -1) {
-		    			outToServer.write("*99*9##");
+		    			outToServer.write("*99*1##");
 		    			outToServer.flush();
 		    			resp = bf.read(cbs);
 		    			System.out.println("apertura sessione " + resp + " - " + String.copyValueOf(cbs));
 		    			
-		    			if(resp != -1) {
-			    			outToServer.write("*1*0*1##");
-			    			outToServer.flush();
-			    			resp = bf.read(cbs);
-			    			System.out.println("luci " + resp + " - " + String.copyValueOf(cbs));
-			    		}
+		    			if (resp != -1) {
+		    				while(sockM.isConnected()) {
+		    					resp = bf.read(cbs);
+				    			System.out.println("messaggio dal server : " + resp + " - " + String.copyValueOf(cbs));
+				    			
+				    			if(resp == -1 ) {
+				    				bf.close();
+				    				outToServer.close();
+				    				inputStreamReader.close();
+				    				sockM.close();
+				    				
+				    				
+				    			}
+		    				}
+		    			}
+		    			
 		    		}
 		    		
-		    		outToServer.close();
-		    		bf.close();
-		    		inputStreamReader.close();
-		    		sock.close();
 		    }
+			
 			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-	 
 	}
-
 }

@@ -12,14 +12,13 @@ import java.net.UnknownHostException;
 public class BTicinoSocket extends Socket{
 	
 	private Socket sock ;
-	private String hostIP = "192.168.0.35";
-	private int port = 20000;
+	private final String hostIP = "192.168.0.35";
+	private final int port = 20000;
+	
 	private PrintWriter outToServer;
 	private InputStreamReader inputStreamReader;
 	private BufferedReader bf;
-	private char[] cbs = new char[1024];
-	
-	//private InputReader inputReader;
+	private char[] cbs;
 	
 	
 	/**

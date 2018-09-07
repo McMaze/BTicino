@@ -9,6 +9,7 @@ public class Model {
 
 	
 	public BTicinoSocket sock;
+	public BTicinoSocketMonitor sockMonitor;
 	private Map<WhoName, Who> who;
 	
 	private Light luceAll;
@@ -19,14 +20,10 @@ public class Model {
 	
 	
 	public Model() {
+		boolean isSockConnected = this.creaSocket();
+		boolean isSockMonConnected = this.creaSocketMonitor();
 		
-		sock = new BTicinoSocket();
-		
-		//Invio il messaggio per stabilire una sessione di comandi
-		int sessioneComandi = sock.sendMessage("*99*9##");
-		
-
-		if (sessioneComandi != -1) {
+		if (isSockConnected == true && isSockMonConnected == true) {
 			who = new TreeMap<>();
 			//aggiungo impianto luci
 			who.put(WhoName.LIGHTING, new Who(WhoName.LIGHTING, 1));
@@ -44,6 +41,35 @@ public class Model {
 		}
 	}
 	
+
+	private boolean creaSocket() {
+		sock = new BTicinoSocket();
+		
+		//Invio il messaggio per stabilire una sessione di comandi
+		int sessioneComandi = sock.sendMessage("*99*9##");
+		
+		if (sessioneComandi != -1)
+			return true;
+		
+		return false;
+	}
+
+
+	private boolean creaSocketMonitor() {
+		sockMonitor = new BTicinoSocketMonitor();
+		
+		//Invio il messaggio per stabilire una sessione di comandi
+		int sessioneEventi = sock.sendMessage("*99*1##");
+		
+		if (sessioneEventi != -1)
+			return true;
+		
+		return false;
+	}
+	
+	public void readSockMonitor() {
+		sockMonitor.readInput();
+	}
 
 	public Light getLuceAll() {
 		return luceAll;
