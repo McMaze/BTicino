@@ -13,7 +13,7 @@ import javafx.scene.control.Button;
 public class BTicinoController {
 
 	
-	Model model; 
+	public Model model; 
 	
     @FXML // ResourceBundle that was given to the FXMLLoader
     private ResourceBundle resources;
@@ -21,11 +21,11 @@ public class BTicinoController {
     @FXML // URL location of the FXML file that was given to the FXMLLoader
     private URL location;
 
-    @FXML // fx:id="btnLuceAllOn"
-    private Button btnLuceAllOn; // Value injected by FXMLLoader
+    @FXML // fx:id="btnLuceGeneraleOn"
+    private Button btnLuceGeneraleOn; // Value injected by FXMLLoader
 
-    @FXML // fx:id="btnLuceAllOff"
-    private Button btnLuceAllOff; // Value injected by FXMLLoader
+    @FXML // fx:id="btnLuceGeneraleOff"
+    private Button btnLuceGeneraleOff; // Value injected by FXMLLoader
 
     @FXML // fx:id="btnLuce1On"
     private Button btnLuce1On; // Value injected by FXMLLoader
@@ -54,13 +54,13 @@ public class BTicinoController {
    
 
     @FXML
-    void luceAllOff(ActionEvent event) {
-    		model.getLuceAll().TurnOff();
+    void luceGeneraleOff(ActionEvent event) {
+    		model.getLuceGenerale().TurnOff();
     }
 
     @FXML
-    void luceAllOn(ActionEvent event) {
-    		model.getLuceAll().TurnOn();
+    void luceGeneraleOn(ActionEvent event) {
+    		model.getLuceGenerale().TurnOn();
     }
     
     
@@ -113,14 +113,13 @@ public class BTicinoController {
     
     void setModel(Model model) {
     		this.model = model;
-    		model.readSockMonitor();
     }
 
 
 	@FXML // This method is called by the FXMLLoader when initialization is complete
 	    void initialize() {
-		assert btnLuceAllOn != null : "fx:id=\"btnLuceAllOn\" was not injected: check your FXML file 'BTicinoGest.fxml'.";
-        assert btnLuceAllOff != null : "fx:id=\"btnLuceAllOff\" was not injected: check your FXML file 'BTicinoGest.fxml'.";
+		assert btnLuceGeneraleOn != null : "fx:id=\"btnLuceGeneraleOn\" was not injected: check your FXML file 'BTicinoGest.fxml'.";
+        assert btnLuceGeneraleOff != null : "fx:id=\"btnLuceGeneraleOff\" was not injected: check your FXML file 'BTicinoGest.fxml'.";
         assert btnLuce1On != null : "fx:id=\"btnLuce1On\" was not injected: check your FXML file 'BTicinoGest.fxml'.";
         assert btnLuce1Off != null : "fx:id=\"btnLuce1Off\" was not injected: check your FXML file 'BTicinoGest.fxml'.";
         assert btnLuce2On != null : "fx:id=\"btnLuce2On\" was not injected: check your FXML file 'BTicinoGest.fxml'.";

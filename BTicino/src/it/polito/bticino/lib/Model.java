@@ -3,16 +3,21 @@ package it.polito.bticino.lib;
 import java.util.*;
 
 import it.polito.bticino.connessione.*;
+import it.polito.bticino.lib.AutomationStatus.AutomationStatusName;
+import it.polito.bticino.lib.LightStatus.LightStatusName;
 import it.polito.bticino.lib.Who.WhoName;
+import it.polito.bticino.reader.Reader;
+import it.polito.bticino.reader.Reader.EventType;
 
 public class Model {
 
 	
 	public BTicinoSocket sock;
 	public BTicinoSocketMonitor sockMonitor;
-	private Map<WhoName, Who> who;
+	public Reader reader;
 	
-	private Light luceAll;
+	private Map<WhoName, Who> who;
+	private Light luceGenerale;
 	private Light luce1;
 	private Light luce2;
 	private Light luce3;
@@ -20,49 +25,117 @@ public class Model {
 	
 	
 	public Model() {
-		boolean isSockConnected = this.creaSocket();
-		boolean isSockMonConnected = this.creaSocketMonitor();
+		
+		reader = new Reader(this);
+		boolean isSockConnected = this.creaSocket(reader);
+		boolean isSockMonConnected = this.creaSocketMonitor(reader, this);
 		
 		if (isSockConnected == true && isSockMonConnected == true) {
+		//if (isSockConnected == true ) {
 			who = new TreeMap<>();
+			
 			//aggiungo impianto luci
 			who.put(WhoName.LIGHTING, new Who(WhoName.LIGHTING, 1));
+			
+			luceGenerale = new Light(1, "luceGenerale", this);
+			luce1 = new Light(1, "luce1", this);
+			luce2 = new Light(1, "luce2", this);
+			luce3 = new Light(1, "luce3", this);
+			who.get(WhoName.LIGHTING).getOggetti().put("luceGenerale", luceGenerale);
+			who.get(WhoName.LIGHTING).getOggetti().put("luce1", luce1);
+			who.get(WhoName.LIGHTING).getOggetti().put("luce2", luce2);
+			who.get(WhoName.LIGHTING).getOggetti().put("luce2", luce3);
+			
 			//aggiungo impianto automazione
 			who.put(WhoName.AUTOMATION, new Who(WhoName.AUTOMATION, 2));
-			
-			luceAll = new Light(1, "lights", this);
-			luce1 = new Light(1, "light1", this);
-			luce2 = new Light(1, "light2", this);
-			luce3 = new Light(1, "light3", this);
-			
+	
 			tapparella = new Automation(21, "tapparella", this);
+			who.get(WhoName.AUTOMATION).getOggetti().put("tapparella", tapparella);
+			
+			
+			// setto gli stati di partenza degli oggetti
+			List<EventType> stati = new ArrayList<EventType>(sock.getStati());
+			for (EventType stato : stati) {
+				this.setStatoOggetto(stato);
+			}
+			
 		} else {
-			System.err.println("Impossibile stabilire una sessione di comandi");
+			System.err.println("Impossibile stabilire una sessione di comandi e/o d eventi");
 		}
 	}
 	
 
-	private boolean creaSocket() {
-		sock = new BTicinoSocket();
+	public  void setStatoOggetto(EventType stato) {
+	
+			
+			if (stato== EventType.ACK) {
+				
+			}
+			if(stato == EventType.NACK) {
+				
+			}
+			
+			if(stato == EventType.LUCIACCESE) {
+				this.getLuceGenerale().setStato(this.getLuceGenerale().getWhat().get(LightStatusName.ON));
+				this.getLuce1().setStato(this.getLuce1().getWhat().get(LightStatusName.ON));
+				this.getLuce2().setStato(this.getLuce2().getWhat().get(LightStatusName.ON));
+				this.getLuce3().setStato(this.getLuce3().getWhat().get(LightStatusName.ON));
+			}
+			if (stato == EventType.LUCISPENTE) {
+				this.getLuceGenerale().setStato(this.getLuceGenerale().getWhat().get(LightStatusName.OFF));
+				this.getLuce1().setStato(this.getLuce1().getWhat().get(LightStatusName.OFF));
+				this.getLuce2().setStato(this.getLuce2().getWhat().get(LightStatusName.OFF));
+				this.getLuce3().setStato(this.getLuce3().getWhat().get(LightStatusName.OFF));
+			}
+			if (stato == EventType.LUCE1ACCESA){
+				this.getLuce1().setStato(this.getLuce1().getWhat().get(LightStatusName.ON));
+			}
+			if (stato == EventType.LUCE1SPENTA){
+				this.getLuce1().setStato(this.getLuce1().getWhat().get(LightStatusName.OFF));
+			}
+			if (stato == EventType.LUCE2ACCESA){
+				this.getLuce2().setStato(this.getLuce2().getWhat().get(LightStatusName.ON));
+			}
+			if (stato == EventType.LUCE2SPENTA){
+				this.getLuce2().setStato(this.getLuce2().getWhat().get(LightStatusName.OFF));
+			}
+			if (stato == EventType.LUCE3ACCESA){
+				this.getLuce3().setStato(this.getLuce3().getWhat().get(LightStatusName.ON));
+			}
+			if (stato == EventType.LUCE3SPENTA){
+				this.getLuce3().setStato(this.getLuce3().getWhat().get(LightStatusName.OFF));
+			}
+			if (stato == EventType.TAPPARELLASU) {
+				this.getTapparella().setStato(this.getTapparella().getWhat().get(AutomationStatusName.UP));
+			}
+			if (stato == EventType.TAPPARELLAGIU) {
+				this.getTapparella().setStato(this.getTapparella().getWhat().get(AutomationStatusName.DOWN));
+			}
+	}
+
+
+	private boolean creaSocket(Reader reader) {
+		sock = new BTicinoSocket(reader);
 		
 		//Invio il messaggio per stabilire una sessione di comandi
-		int sessioneComandi = sock.sendMessage("*99*9##");
+		boolean sessioneComandi = sock.apriSessioneComandi();
 		
-		if (sessioneComandi != -1)
+		if (sessioneComandi == true)
 			return true;
 		
 		return false;
 	}
 
 
-	private boolean creaSocketMonitor() {
-		sockMonitor = new BTicinoSocketMonitor();
+	private boolean creaSocketMonitor(Reader reader, Model model) {
+		sockMonitor = new BTicinoSocketMonitor(reader, model);
 		
 		//Invio il messaggio per stabilire una sessione di comandi
-		int sessioneEventi = sock.sendMessage("*99*1##");
+		boolean sessioneEventi = sockMonitor.apriSessioneEventi();
 		
-		if (sessioneEventi != -1)
+		if (sessioneEventi == true) {
 			return true;
+		}
 		
 		return false;
 	}
@@ -70,9 +143,10 @@ public class Model {
 	public void readSockMonitor() {
 		sockMonitor.readInput();
 	}
+	
 
-	public Light getLuceAll() {
-		return luceAll;
+	public Light getLuceGenerale() {
+		return luceGenerale;
 	}
 
 
@@ -104,5 +178,8 @@ public class Model {
 		return this.sock;
 	}
 
+	public BTicinoSocketMonitor getSocketMonitor() {
+		return this.sockMonitor;
+	}
 	
 }

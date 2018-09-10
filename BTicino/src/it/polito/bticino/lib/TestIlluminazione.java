@@ -7,6 +7,6 @@ public class TestIlluminazione {
 	
 		Model model = new Model();
 		
-		model.getLuceAll().TurnOff();
+		model.getLuceGenerale().TurnOff();
 	}
 }

@@ -11,12 +11,12 @@ public class Who {
 	
 	private WhoName name;
 	private int number;
-	private Map<String, Integer> oggetti;
+	private Map<String, Object> oggetti;
 	
 	public Who(WhoName name, int number ) {
 		this.name = name;
 		this.number = number;
-		this.oggetti = new TreeMap<String, Integer>();
+		this.oggetti = new TreeMap<String, Object>();
 	}
 
 	public WhoName getName() {
@@ -27,7 +27,7 @@ public class Who {
 		return number;
 	}
 
-	public Map<String, Integer> getOggetti() {
+	public Map<String, Object> getOggetti() {
 		return oggetti;
 	}
 	

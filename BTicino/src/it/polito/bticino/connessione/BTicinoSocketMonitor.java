@@ -8,94 +8,133 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
-public class BTicinoSocketMonitor extends BTicinoSocket {
+
+import it.polito.bticino.lib.Model;
+import it.polito.bticino.reader.Reader;
+import it.polito.bticino.reader.Reader.EventType;
+
+
+public class BTicinoSocketMonitor extends Socket{
 
 	
 	private Socket sockMonitor;
 	private final String hostIP = "192.168.0.35";
 	private final int port = 20000;
-	
+		
 	private PrintWriter outToServer;
 	private InputStreamReader inputStreamReader;
 	private BufferedReader bf;
 	private char[] cbs;
+	
 	private boolean sessioneEventi;
+	private Reader reader;
+	private Model model;
 	
 	
 	/**
-	 * Il SocketMonitor apre una connessione Socket con BTicino e la mantiene aperta per recepire tutti
-	 * i cambiamenti degli oggetti analizzati.
+	 * Il SocketMonitor apre una connessione Socket con il Gateway BTicino,
+	 * stabilendo una sessione di eventi.
+	 * Gli eventi sono i cambiamenti degli oggetti analizzati.
 	 */
-	public BTicinoSocketMonitor() {
-		super();
+	public BTicinoSocketMonitor(Reader reader, Model model) {
 		try {
 			this.sockMonitor = new Socket();
 			this.sockMonitor.connect(new InetSocketAddress(hostIP, port), 0);
+		
 			
-			outToServer = new PrintWriter(sockMonitor.getOutputStream());
-			inputStreamReader = new InputStreamReader(sockMonitor.getInputStream());
-			bf = new BufferedReader(inputStreamReader);
-			sessioneEventi = false;
+			this.outToServer = new PrintWriter(sockMonitor.getOutputStream());
+			this.inputStreamReader = new InputStreamReader(sockMonitor.getInputStream());
+			this.bf = new BufferedReader(inputStreamReader);
+			this.model=model;
+			
+			this.sessioneEventi = false;
+			this.reader = reader;
 			
 			 if (!sockMonitor.isConnected())
 		    		System.err.println("Non connesso");
 			 else {
 				cbs = new char[1024];
 		    		bf.read(cbs);
-		    		System.out.println("Connessione : "+ String.copyValueOf(cbs));
+		    		String rispDalServer = String.copyValueOf(cbs);
+		    		
+		    		EventType connessione = reader.interpretaMessagio(rispDalServer);
+		    		System.out.println("Connessione: "+connessione.toString());
 			 }
+			 
 		} catch ( java.net.UnknownHostException e ) {
-		// Il nome dell'host non e' valido    
+			// Il nome dell'host non e' valido    
 		    System.out.println("Can't find host."); 
 		} 
 		catch ( java.io.IOException e ){ 
-		// Si e' verificato un errore di connessione
+			// Si e' verificato un errore di connessione
 		    System.out.println("Error connecting to host."); 
 		} 
 			
 	} 
 
-	
-	public int sendMessage(String message) {
+	/**
+	 * Metodo che apre un sessione di eventi con il Gateway BTicino
+	 * @return true, se e` riuscito ad aprire la sessione
+	 * @return false, se non riesce ad aprire la sessione
+	 */	
+	public boolean apriSessioneEventi() {
 		
-		// Crea il messaggio da inviare al server BTicino
-	
+		// Crea il messaggio da inviare al Gateway BTicino per stailire una sessione di Eventi
+		String openSession =  "*99*1##";
 		try {
-			
-			// Viene aperto il socket con indirizzo IP e la relativa porta per connettersi al server
-			 if (!sockMonitor.isConnected())
-				 sockMonitor = new BTicinoSocketMonitor();
+			// Se non si e` connessi stampa un messaggio di errore, @return false
+			 if (!sockMonitor.isConnected()) {
+				 System.err.println("Connetti prima il socket tramite Model");
+				 return false;
+				 }
 			
 			// Viene settato il messaggio/riga da inviare al server
-			outToServer.write(message);
+			outToServer.write(openSession);
 			outToServer.flush();
 			
-			// Viene stampato l'input stream dal server
-			int risposta = bf.read(cbs);
-			String dalServer = String.copyValueOf(cbs);
-			System.out.println("messaggio: " +dalServer);
-			if (risposta != -1 ) {
+			
+			// Input dal server
+			bf.read(cbs);
+			
+			// Interpretazione risposta del Gateway
+    			String rispDalServer = String.format("%s", String.copyValueOf(cbs));
+    			EventType evento = reader.interpretaMessagio(rispDalServer);
+			if (evento == EventType.ACK) {
 				sessioneEventi = true;
 			}
-			return risposta;
+			
+			return sessioneEventi;
 			
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
+			return false;
 		} catch (IOException e) {
 			e.printStackTrace();
+			return false;
 		}
-		return -1;
 	}
 	
-	
+	/**
+	 * Metodo che legge e interpreta cio` che il Gateway invia
+	 * Ack, Nack, Eventi.
+	 */
 	public void readInput() {
+		
+		// Se non si e` connessi stampa un messaggio di errore, @return false
 		if (!sockMonitor.isConnected()) {
-			sockMonitor = new BTicinoSocketMonitor();
+			System.err.println("Connetti prima il socket tramite Model");
 		}
 		while(sessioneEventi == true) {
+			
 			try {
+				
+				// Input dal server
 				int risp = bf.read(cbs);
-	    			System.out.println("messaggio dal server : " + risp + " - " + String.copyValueOf(cbs));
+				
+				// Interpretazione risposta del Gateway
+				String rispDalServer = String.format("%s", String.copyValueOf(cbs));
+				EventType evento = reader.interpretaMessagio(rispDalServer);
+				model.setStatoOggetto(evento);
 	    			
 	    			if (risp == -1) {
 	    				this.outToServer.close();
@@ -103,14 +142,14 @@ public class BTicinoSocketMonitor extends BTicinoSocket {
 	    				this.bf.close();
 	    				this.close();
 	    			}
+	    			
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			
 		}
 	}
-	
+
 	
 	
 	/**
