@@ -3,6 +3,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
@@ -10,43 +11,49 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polito.bticino.main.BTicinoController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="248.0" prefWidth="390.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polito.bticino.main.BTicinoController">
    <center>
       <VBox BorderPane.alignment="CENTER">
          <children>
             <HBox>
                <children>
-                  <GridPane>
+                  <GridPane prefHeight="130.0" prefWidth="329.0">
                     <columnConstraints>
-                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                      <ColumnConstraints hgrow="SOMETIMES" maxWidth="94.0" minWidth="10.0" prefWidth="59.0" />
-                      <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" maxWidth="130.0" minWidth="10.0" prefWidth="59.0" />
-                        <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" maxWidth="150.0" minWidth="10.0" prefWidth="66.0" />
+                        <ColumnConstraints hgrow="ALWAYS" />
+                        <ColumnConstraints hgrow="ALWAYS" maxWidth="80.0" minWidth="80.0" prefWidth="80.0" />
+                      <ColumnConstraints halignment="CENTER" hgrow="ALWAYS" maxWidth="60.0" minWidth="60.0" prefWidth="60.0" />
+                      <ColumnConstraints halignment="CENTER" hgrow="ALWAYS" maxWidth="60.0" minWidth="34.0" prefWidth="60.0" />
+                        <ColumnConstraints halignment="RIGHT" hgrow="ALWAYS" maxWidth="60.0" minWidth="60.0" prefWidth="60.0" />
                     </columnConstraints>
                     <rowConstraints>
-                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                        <RowConstraints maxHeight="31.0" minHeight="10.0" prefHeight="31.0" vgrow="SOMETIMES" />
-                      <RowConstraints maxHeight="30.0" minHeight="10.0" prefHeight="29.0" vgrow="SOMETIMES" />
-                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                      <RowConstraints minHeight="30.0" valignment="CENTER" vgrow="ALWAYS" />
+                        <RowConstraints minHeight="30.0" valignment="CENTER" vgrow="ALWAYS" />
+                      <RowConstraints minHeight="30.0" valignment="CENTER" vgrow="ALWAYS" />
+                      <RowConstraints minHeight="30.0" valignment="CENTER" vgrow="ALWAYS" />
+                        <RowConstraints minHeight="30.0" valignment="CENTER" vgrow="ALWAYS" />
                     </rowConstraints>
                      <children>
-                        <Button fx:id="btnLuceAllOn" mnemonicParsing="false" onAction="#luceAllOn" text="On" GridPane.columnIndex="1" />
+                        <Button fx:id="btnLuceGeneraleOn" mnemonicParsing="false" onAction="#luceGeneraleOn" text="On" GridPane.columnIndex="2" />
                         <Label text="Illuminazione" />
                         <Label text="Luce 2" GridPane.rowIndex="2" />
                         <Label text="Luce 3" GridPane.rowIndex="3" />
                         <Label text="Tapparella" GridPane.rowIndex="4" />
-                        <Button fx:id="btnLuceAllOff" mnemonicParsing="false" onAction="#luceAllOff" text="Off" GridPane.columnIndex="3" />
-                        <Button fx:id="btnLuce1On" mnemonicParsing="false" onAction="#luceUnoOn" text="On" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                        <Button fx:id="btnLuce1Off" mnemonicParsing="false" onAction="#luceUnoOff" text="Off" GridPane.columnIndex="3" GridPane.rowIndex="1" />
-                        <Button fx:id="btnLuce2On" mnemonicParsing="false" onAction="#luceDueOn" text="On" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                        <Button fx:id="btnLuce2Off" mnemonicParsing="false" onAction="#luceDueOff" text="Off" GridPane.columnIndex="3" GridPane.rowIndex="2" />
-                        <Button fx:id="btnLuce3On" mnemonicParsing="false" onAction="#luceTreOn" text="On" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                        <Button fx:id="btnLuce3Off" mnemonicParsing="false" onAction="#luceTreOff" text="Off" GridPane.columnIndex="3" GridPane.rowIndex="3" />
-                        <Button fx:id="btnTappUp" mnemonicParsing="false" onAction="#tapparellaUp" text="Up" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-                        <Button fx:id="btnTappaDown" mnemonicParsing="false" onAction="#tapparellaDown" text="Down" GridPane.columnIndex="3" GridPane.rowIndex="4" />
-                        <Button mnemonicParsing="false" onAction="#tapparellaStop" text="Stop" GridPane.columnIndex="2" GridPane.rowIndex="4" />
+                        <Button fx:id="btnLuceGeneraleOff" mnemonicParsing="false" onAction="#luceGeneraleOff" text="Off" GridPane.columnIndex="4" />
+                        <Button fx:id="btnLuce1On" mnemonicParsing="false" onAction="#luceUnoOn" text="On" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                        <Button fx:id="btnLuce1Off" mnemonicParsing="false" onAction="#luceUnoOff" text="Off" GridPane.columnIndex="4" GridPane.rowIndex="1" />
+                        <Button fx:id="btnLuce2On" mnemonicParsing="false" onAction="#luceDueOn" text="On" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                        <Button fx:id="btnLuce2Off" mnemonicParsing="false" onAction="#luceDueOff" text="Off" GridPane.columnIndex="4" GridPane.rowIndex="2" />
+                        <Button fx:id="btnLuce3On" mnemonicParsing="false" onAction="#luceTreOn" text="On" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+                        <Button fx:id="btnLuce3Off" mnemonicParsing="false" onAction="#luceTreOff" text="Off" GridPane.columnIndex="4" GridPane.rowIndex="3" />
+                        <Button fx:id="btnTappUp" mnemonicParsing="false" onAction="#tapparellaUp" text="Up" GridPane.columnIndex="2" GridPane.rowIndex="4" />
+                        <Button fx:id="btnTappaDown" mnemonicParsing="false" onAction="#tapparellaDown" text="Down" GridPane.columnIndex="4" GridPane.rowIndex="4" />
+                        <Button mnemonicParsing="false" onAction="#tapparellaStop" text="Stop" GridPane.columnIndex="3" GridPane.rowIndex="4" />
                         <Label text="Luce 1" GridPane.rowIndex="1" />
+                        <TextField fx:id="statusLuce1" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                        <TextField fx:id="statusLuce2" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                        <TextField fx:id="statusLuce3" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                        <TextField fx:id="statusTapparella" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                        <TextField fx:id="statusLuceGenerale" GridPane.columnIndex="1" />
                      </children>
                      <HBox.margin>
                         <Insets />

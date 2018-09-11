@@ -14,7 +14,7 @@ import it.polito.bticino.reader.Reader;
 import it.polito.bticino.reader.Reader.EventType;
 
 
-public class BTicinoSocketMonitor extends Socket{
+public class BTicinoSocketMonitor extends Socket implements Runnable{
 
 	
 	private Socket sockMonitor;
@@ -59,6 +59,9 @@ public class BTicinoSocketMonitor extends Socket{
 		    		
 		    		EventType connessione = reader.interpretaMessagio(rispDalServer);
 		    		System.out.println("Connessione: "+connessione.toString());
+		    		
+		    		Thread t = new Thread(this, "eventi");
+		    		t.start();
 			 }
 			 
 		} catch ( java.net.UnknownHostException e ) {
@@ -71,6 +74,14 @@ public class BTicinoSocketMonitor extends Socket{
 		} 
 			
 	} 
+	
+	
+	@Override
+	public void run() {
+		this.apriSessioneEventi();
+		this.readInput();
+		
+	}
 
 	/**
 	 * Metodo che apre un sessione di eventi con il Gateway BTicino
@@ -133,7 +144,9 @@ public class BTicinoSocketMonitor extends Socket{
 				
 				// Interpretazione risposta del Gateway
 				String rispDalServer = String.format("%s", String.copyValueOf(cbs));
+				System.out.println(rispDalServer);
 				EventType evento = reader.interpretaMessagio(rispDalServer);
+				
 				model.setStatoOggetto(evento);
 	    			
 	    			if (risp == -1) {
@@ -165,5 +178,7 @@ public class BTicinoSocketMonitor extends Socket{
 			}
 		}
 	}
+
+	
 
 }

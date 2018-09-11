@@ -15,14 +15,16 @@ public class Main extends Application {
 			FXMLLoader loader = new FXMLLoader(getClass().getResource("BTicinoGest.fxml")) ;
 			BorderPane root = (BorderPane)loader.load();
 			BTicinoController controller = loader.getController();
-			Model model = new Model();
-			controller.setModel(model);
-			Scene scene = new Scene(root);
 			
+			Thread t = Thread.currentThread();
+			t.setName("comandi");
+			
+			Model model = new Model();
+			controller.set(model, t );
+			Scene scene = new Scene(root);
 			primaryStage.setScene(scene);
 			primaryStage.show();
 			
-		
 			
 		} catch(Exception e) {
 			e.printStackTrace();

@@ -15,6 +15,9 @@ public class Reader {
 	private static final String LUCE2OFF = "*1*0*12##";
 	private static final String LUCE3ON = "*1*1*13##";
 	private static final String LUCE3OFF = "*1*0*13##";
+	private static final String TAPPARELLAABBASSATA = "*2*2*21##";
+	private static final String TAPPARELLAALZATA  = "*2*1*21##";
+	private static final String TAPPARELLASTOP = "*2*0*21##";
 	
 	
 	public Model model;
@@ -25,7 +28,7 @@ public class Reader {
 		LUCE1ACCESA, LUCE1SPENTA,
 		LUCE2ACCESA, LUCE2SPENTA,
 		LUCE3ACCESA, LUCE3SPENTA,
-		TAPPARELLASU, TAPPARELLAGIU; 
+		TAPPARELLASU, TAPPARELLAGIU, TAPPARELLASTOP; 
 	}
 	public Reader() {
 	}
@@ -95,6 +98,15 @@ public class Reader {
 			return EventType.LUCE3ACCESA;  
 		if (message.compareTo(LUCE3OFF)==0)
 			return EventType.LUCE3SPENTA;
+		
+		
+		if (message.compareTo(TAPPARELLAALZATA)==0)
+			return EventType.TAPPARELLASU;  
+		if (message.compareTo(TAPPARELLAABBASSATA)==0)
+			return EventType.TAPPARELLAGIU;
+		if (message.compareTo(TAPPARELLASTOP)==0)
+			return EventType.TAPPARELLASTOP;
+		
 	
 	return null;
 	}

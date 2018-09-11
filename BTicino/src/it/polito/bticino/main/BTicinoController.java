@@ -7,6 +7,7 @@ import it.polito.bticino.lib.Model;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.TextField;
 
 
 
@@ -14,6 +15,8 @@ public class BTicinoController {
 
 	
 	public Model model; 
+	public Thread comandi;
+	public Thread eventi;
 	
     @FXML // ResourceBundle that was given to the FXMLLoader
     private ResourceBundle resources;
@@ -51,6 +54,22 @@ public class BTicinoController {
     @FXML // fx:id="btnTappaDown"
     private Button btnTappaDown; // Value injected by FXMLLoader
     
+    @FXML // fx:id="statusLuceGenerale"
+    private TextField statusLuceGenerale; // Value injected by FXMLLoader
+    
+    @FXML // fx:id="statusLuce1"
+    private TextField statusLuce1; // Value injected by FXMLLoader
+
+    @FXML // fx:id="statusLuce2"
+    private TextField statusLuce2; // Value injected by FXMLLoader
+
+    @FXML // fx:id="statusLuce3"
+    private TextField statusLuce3; // Value injected by FXMLLoader
+
+    @FXML // fx:id="statusTapparella"
+    private TextField statusTapparella; // Value injected by FXMLLoader
+
+    
    
 
     @FXML
@@ -67,32 +86,44 @@ public class BTicinoController {
     @FXML
     void luceUnoOff(ActionEvent event) {
     		model.getLuce1().TurnOff();
+    		// sincronizzazione ? 
+    		this.statusLuce1.setText(model.getLuce1().getStato().getStatusName().toString());
     }
 
     @FXML
     void luceUnoOn(ActionEvent event) {
     		model.getLuce1().TurnOn();
+    		// sincronizzazione ?
+    		this.statusLuce1.setText(model.getLuce1().getStato().getStatusName().toString());
     }
 
     @FXML
     void luceDueOff(ActionEvent event) {
     		model.getLuce2().TurnOff();
+    		// sincronizzazione ?
+    		this.statusLuce2.setText(model.getLuce2().getStato().getStatusName().toString());
     }
 
     @FXML
     void luceDueOn(ActionEvent event) {
     		model.getLuce2().TurnOn();
+    		// sincronizzazione ?
+    		this.statusLuce2.setText(model.getLuce2().getStato().getStatusName().toString());
     }
     
     
     @FXML
     void luceTreOff(ActionEvent event) {
     		model.getLuce3().TurnOff();
+    		// sincronizzazione ?
+    		this.statusLuce3.setText(model.getLuce3().getStato().getStatusName().toString());
     	}
 
     @FXML
     void luceTreOn(ActionEvent event) {
     		model.getLuce3().TurnOn();
+    		// sincronizzazione ?
+    		this.statusLuce3.setText(model.getLuce3().getStato().getStatusName().toString());
     }
 
     @FXML
@@ -111,10 +142,28 @@ public class BTicinoController {
     }
 
     
-    void setModel(Model model) {
+    void set(Model model, Thread threadComandi) {
     		this.model = model;
+    		this.comandi = threadComandi;
+    		this.setStausLabel();
+    	
+    		eventi = new Thread (model.sockMonitor, "eventi");
+    		eventi.start();
+			
     }
 
+
+	private void setStausLabel() {
+		this.statusLuce1.setText(this.model.getLuce1().getStato().getStatusName().toString());
+		this.statusLuce2.setText(this.model.getLuce2().getStato().getStatusName().toString());
+		this.statusLuce3.setText(this.model.getLuce3().getStato().getStatusName().toString());
+		this.statusTapparella.setText(this.model.getTapparella().getStato().getStatusName().toString());
+		
+		model.setStatoLuceGenerale();
+		this.statusLuceGenerale.setText(this.model.getLuce3().getStato().getStatusName().toString());
+		
+		
+	}
 
 	@FXML // This method is called by the FXMLLoader when initialization is complete
 	    void initialize() {
@@ -127,8 +176,18 @@ public class BTicinoController {
         assert btnLuce3On != null : "fx:id=\"btnLuce3On\" was not injected: check your FXML file 'BTicinoGest.fxml'.";
         assert btnLuce3Off != null : "fx:id=\"btnLuce3Off\" was not injected: check your FXML file 'BTicinoGest.fxml'.";
         assert btnTappUp != null : "fx:id=\"btnTappUp\" was not injected: check your FXML file 'BTicinoGest.fxml'.";
-	    }
+        assert statusLuceGenerale != null : "fx:id=\"statusLuceGenerale\" was not injected: check your FXML file 'BTicinoGest.fxml'.";
+        assert statusLuce1 != null : "fx:id=\"statusLuce1\" was not injected: check your FXML file 'BTicinoGest.fxml'.";
+        assert statusLuce2 != null : "fx:id=\"statusLuce2\" was not injected: check your FXML file 'BTicinoGest.fxml'.";
+        assert statusLuce3 != null : "fx:id=\"statusLuce3\" was not injected: check your FXML file 'BTicinoGest.fxml'.";
+        assert statusTapparella != null : "fx:id=\"statusTapparella\" was not injected: check your FXML file 'BTicinoGest.fxml'.";
+
+	}
 	
-	
+	@FXML
+	 	void dispose() {
+			model.sock.close();
+			model.sockMonitor.close();
+		}
 	 
 	}

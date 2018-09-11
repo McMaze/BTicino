@@ -9,6 +9,7 @@ import it.polito.bticino.lib.Who.WhoName;
 import it.polito.bticino.reader.Reader;
 import it.polito.bticino.reader.Reader.EventType;
 
+
 public class Model {
 
 	
@@ -30,37 +31,15 @@ public class Model {
 		boolean isSockConnected = this.creaSocket(reader);
 		boolean isSockMonConnected = this.creaSocketMonitor(reader, this);
 		
-		if (isSockConnected == true && isSockMonConnected == true) {
-		//if (isSockConnected == true ) {
-			who = new TreeMap<>();
+		if (isSockConnected == false ) {
+			System.err.println("Impossibile stabilire una sessione di comandi");
 			
-			//aggiungo impianto luci
-			who.put(WhoName.LIGHTING, new Who(WhoName.LIGHTING, 1));
-			
-			luceGenerale = new Light(1, "luceGenerale", this);
-			luce1 = new Light(1, "luce1", this);
-			luce2 = new Light(1, "luce2", this);
-			luce3 = new Light(1, "luce3", this);
-			who.get(WhoName.LIGHTING).getOggetti().put("luceGenerale", luceGenerale);
-			who.get(WhoName.LIGHTING).getOggetti().put("luce1", luce1);
-			who.get(WhoName.LIGHTING).getOggetti().put("luce2", luce2);
-			who.get(WhoName.LIGHTING).getOggetti().put("luce2", luce3);
-			
-			//aggiungo impianto automazione
-			who.put(WhoName.AUTOMATION, new Who(WhoName.AUTOMATION, 2));
-	
-			tapparella = new Automation(21, "tapparella", this);
-			who.get(WhoName.AUTOMATION).getOggetti().put("tapparella", tapparella);
-			
-			
-			// setto gli stati di partenza degli oggetti
-			List<EventType> stati = new ArrayList<EventType>(sock.getStati());
-			for (EventType stato : stati) {
-				this.setStatoOggetto(stato);
-			}
-			
+		}
+		if (isSockMonConnected == false) {
+			System.err.println("Impossibile stabilire una sessione di eventi");
 		} else {
-			System.err.println("Impossibile stabilire una sessione di comandi e/o d eventi");
+			this.creaOggetti();
+			this.getStati();
 		}
 	}
 	
@@ -111,7 +90,13 @@ public class Model {
 			if (stato == EventType.TAPPARELLAGIU) {
 				this.getTapparella().setStato(this.getTapparella().getWhat().get(AutomationStatusName.DOWN));
 			}
+			if (stato == EventType.TAPPARELLASTOP) {
+				this.getTapparella().setStato(this.getTapparella().getWhat().get(AutomationStatusName.STOP));
+			}
 	}
+
+
+	
 
 
 	private boolean creaSocket(Reader reader) {
@@ -138,6 +123,40 @@ public class Model {
 		}
 		
 		return false;
+	}
+	
+	
+	public void creaOggetti() {
+		who = new TreeMap<>();
+		
+		//aggiungo impianto luci
+		who.put(WhoName.LIGHTING, new Who(WhoName.LIGHTING, 1));
+		
+		luceGenerale = new Light(1, "luceGenerale", this);
+		luce1 = new Light(11, "luce1", this);
+		luce2 = new Light(12, "luce2", this);
+		luce3 = new Light(13, "luce3", this);
+		who.get(WhoName.LIGHTING).getOggetti().put("luceGenerale", luceGenerale);
+		who.get(WhoName.LIGHTING).getOggetti().put("luce1", luce1);
+		who.get(WhoName.LIGHTING).getOggetti().put("luce2", luce2);
+		who.get(WhoName.LIGHTING).getOggetti().put("luce2", luce3);
+		
+		//aggiungo impianto automazione
+		who.put(WhoName.AUTOMATION, new Who(WhoName.AUTOMATION, 2));
+
+		tapparella = new Automation(21, "tapparella", this);
+		who.get(WhoName.AUTOMATION).getOggetti().put("tapparella", tapparella);
+		
+	}
+	
+	public void getStati() {
+		
+		// setto gli stati di partenza degli oggetti
+		List<EventType> stati = new ArrayList<EventType>(sock.getStati());
+		for (EventType stato : stati) {
+			this.setStatoOggetto(stato);
+		}
+		
 	}
 	
 	public void readSockMonitor() {
@@ -181,5 +200,23 @@ public class Model {
 	public BTicinoSocketMonitor getSocketMonitor() {
 		return this.sockMonitor;
 	}
+
+
+	public void setStatoLuceGenerale() {
+		if (this.getLuce1().getStato()!=null && this.getLuce2().getStato()!=null && this.getLuce3()!=null) {
+			if ( this.getLuce1().getStato().getStatusName() == LightStatusName.ON &&
+				this.getLuce2().getStato().getStatusName() == LightStatusName.ON	&&
+				this.getLuce2().getStato().getStatusName() == LightStatusName.ON	) {
+				
+				this.getLuceGenerale().setStato(this.luceGenerale.getWhat().get(LightStatusName.ON));
+			}
+			else {
+				this.getLuceGenerale().setStato(this.luceGenerale.getWhat().get(LightStatusName.OFF));
+			}
+				
+		}
+		
+	}
+
 	
 }

@@ -14,7 +14,7 @@ import it.polito.bticino.reader.Reader;
 import it.polito.bticino.reader.Reader.EventType;
 
 
-public class BTicinoSocket extends Socket{
+public class BTicinoSocket extends Socket {
 	
 	private Socket sock ;
 	private final String hostIP = "192.168.0.35";
@@ -170,6 +170,7 @@ public class BTicinoSocket extends Socket{
 	
 	public List<EventType> getStati() {
 		List<String> stati = new ArrayList<>();
+		
 		stati.add("*#1*11##");
 		stati.add("*#1*12##");
 		stati.add("*#1*13##");
@@ -228,6 +229,10 @@ public class BTicinoSocket extends Socket{
 			}
 		}
 	}
+
+
+
+	
 
 
 }
