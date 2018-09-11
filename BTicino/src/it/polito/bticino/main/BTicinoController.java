@@ -16,7 +16,7 @@ public class BTicinoController {
 	
 	public Model model; 
 	public Thread comandi;
-	public Thread eventi;
+	//public Thread eventi;
 	
     @FXML // ResourceBundle that was given to the FXMLLoader
     private ResourceBundle resources;
@@ -145,11 +145,7 @@ public class BTicinoController {
     void set(Model model, Thread threadComandi) {
     		this.model = model;
     		this.comandi = threadComandi;
-    		this.setStausLabel();
-    	
-    		eventi = new Thread (model.sockMonitor, "eventi");
-    		eventi.start();
-			
+    		this.setStausLabel();	
     }
 
 
@@ -161,8 +157,6 @@ public class BTicinoController {
 		
 		model.setStatoLuceGenerale();
 		this.statusLuceGenerale.setText(this.model.getLuce3().getStato().getStatusName().toString());
-		
-		
 	}
 
 	@FXML // This method is called by the FXMLLoader when initialization is complete
@@ -184,10 +178,6 @@ public class BTicinoController {
 
 	}
 	
-	@FXML
-	 	void dispose() {
-			model.sock.close();
-			model.sockMonitor.close();
-		}
+	
 	 
 	}

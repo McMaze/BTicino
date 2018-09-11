@@ -60,8 +60,7 @@ public class BTicinoSocketMonitor extends Socket implements Runnable{
 		    		EventType connessione = reader.interpretaMessagio(rispDalServer);
 		    		System.out.println("Connessione: "+connessione.toString());
 		    		
-		    		Thread t = new Thread(this, "eventi");
-		    		t.start();
+		 
 			 }
 			 
 		} catch ( java.net.UnknownHostException e ) {

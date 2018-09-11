@@ -25,6 +25,8 @@ public class Main extends Application {
 			primaryStage.setScene(scene);
 			primaryStage.show();
 			
+			Thread eventi = new Thread (model.sockMonitor, "eventi");
+    			eventi.start();
 			
 		} catch(Exception e) {
 			e.printStackTrace();
