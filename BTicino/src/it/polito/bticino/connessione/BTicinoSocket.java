@@ -10,11 +10,13 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
+import it.polito.bticino.lib.Model;
+import it.polito.bticino.main.BTicinoController;
 import it.polito.bticino.reader.Reader;
 import it.polito.bticino.reader.Reader.EventType;
 
 
-public class BTicinoSocket extends Socket {
+public class BTicinoSocket extends Socket{
 	
 	private Socket sock ;
 	private final String hostIP = "192.168.0.35";
@@ -27,6 +29,7 @@ public class BTicinoSocket extends Socket {
 
 	private boolean sessioneComandi;
 	private Reader reader;
+	private Model model;
 	private List<EventType> eventi;
 	
 	
@@ -35,7 +38,7 @@ public class BTicinoSocket extends Socket {
 	 * stabilendo una sessione di comandi. 
 	 * I comandi sono quelli che invia l'utente.
 	 */
-	public BTicinoSocket(Reader reader) {
+	public BTicinoSocket(Reader reader, Model model) {
 		try 
 		{ 
 			this.sock = new Socket();
@@ -44,6 +47,7 @@ public class BTicinoSocket extends Socket {
     			this.outToServer = new PrintWriter(sock.getOutputStream());
     			this.inputStreamReader = new InputStreamReader(sock.getInputStream());
 	    		this.bf = new BufferedReader (inputStreamReader);
+	    		this.model = model;
 	    		
 	    		this.sessioneComandi= false;
 	    		this.reader = reader;
@@ -56,8 +60,8 @@ public class BTicinoSocket extends Socket {
 		    		bf.read(cbs);
 		    		String rispDalServer = String.format("%s", String.copyValueOf(cbs));
 		    		
-		    		EventType conesione = reader.interpretaMessagio(rispDalServer);
-		    		System.out.println("Connessione: "+conesione.toString());
+		    		EventType connesione = reader.interpretaMessagio(rispDalServer);
+		    		System.out.println("Connessione: "+connesione.toString());
 		    }
 		    		
 		} catch ( java.net.UnknownHostException e ) {
@@ -125,7 +129,7 @@ public class BTicinoSocket extends Socket {
 	 * @param where, che oggetto deve eseguirlo
 	 * @return
 	 */
-	public boolean sendMessage(int who, Integer what, int where) {
+	public void sendMessage(int who, Integer what, int where) {
 		
 		// Crea il messaggio da inviare al server BTicino
 		String message= "*"+who+"*"+what+"*"+where+"##";
@@ -135,31 +139,33 @@ public class BTicinoSocket extends Socket {
 			// Se non si e` connessi stampa un messaggio di errore, @return false
 			 if (!sock.isConnected()) {
 				 System.err.println("Connetti prima il socket tramite Model");
-				 return false;
+				 //return false;
 				 }
 			
-			// Viene settato il messaggio/riga da inviare al server
-			outToServer.write(message);
-			outToServer.flush();
-			
-			
-			// Input dal server
-			bf.read(cbs);
-			
-			// Interpretazione risposta del Gateway
-    			String rispDalServer = String.format("%s", String.copyValueOf(cbs));
-    			EventType evento = reader.interpretaMessagio(rispDalServer);
-			if (evento == EventType.ACK)
-				return true;
-			
-			return false;
+			if (sessioneComandi == true) {
+				// Viene settato il messaggio/riga da inviare al server
+				outToServer.write(message);
+				outToServer.flush();
+				
+				
+				// Input dal server
+				bf.read(cbs);
+				
+				// Interpretazione risposta del Gateway
+	    			String rispDalServer = String.format("%s", String.copyValueOf(cbs));
+	    			List<String> msgscmp = reader.scomponiMessaggio(rispDalServer); 
+					for (String stringa: msgscmp) {
+						EventType evento = reader.interpretaMessagio(stringa);
+					}
+				
+			}
 			
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
-			return false;
+			//return false;
 		} catch (IOException e) {
 			e.printStackTrace();
-			return false;
+			//return false;
 		}
 	}
 	
@@ -171,10 +177,12 @@ public class BTicinoSocket extends Socket {
 	public List<EventType> getStati() {
 		List<String> stati = new ArrayList<>();
 		
+		stati.add("*#2*21##");
+		stati.add("*#1*1##");
 		stati.add("*#1*11##");
 		stati.add("*#1*12##");
 		stati.add("*#1*13##");
-		stati.add("*#2*21##");
+		
 		
 		eventi = new ArrayList<EventType>();
 	
@@ -200,10 +208,11 @@ public class BTicinoSocket extends Socket {
 				List<String> msgscmp = reader.scomponiMessaggio(rispDalServer); 
 				for (String stringa: msgscmp) {
 					EventType evento = reader.interpretaMessagio(stringa);
-					eventi.add(evento);
+					model.setStatoOggetto(evento);
 				}
 				
 			 }
+			 BTicinoController.inizializzazione = true;
 		
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
@@ -222,6 +231,7 @@ public class BTicinoSocket extends Socket {
 	public void close() {
 		if (this.sock.isConnected()) {
 			try {
+				
 				sock.close();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
@@ -229,6 +239,10 @@ public class BTicinoSocket extends Socket {
 			}
 		}
 	}
+
+
+
+
 
 
 

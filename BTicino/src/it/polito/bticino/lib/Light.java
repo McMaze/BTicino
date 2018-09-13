@@ -7,12 +7,14 @@ import it.polito.bticino.lib.LightStatus.LightStatusName;
 public class Light{
 
 	private final int who = 1;
-	private String name;
+	
 	private Map<LightStatusName, LightStatus> what;
 	private int where;
+	private String name;
+	private LightStatus status;
 	private Model model;
 	
-	private LightStatus status;
+
 	
 	public Light(int where, String name, Model model) {
 		what = new HashMap<LightStatusName, LightStatus>();

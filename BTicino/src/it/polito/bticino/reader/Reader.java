@@ -73,12 +73,52 @@ public class Reader {
 	
 	public EventType interpretaMessagio (String m) {
 		String message = m.trim();
+		
+
+		
 		if (message.compareTo(ACK)==0)
 			return EventType.ACK;
 		if (message.compareTo(NACK)==0)
 			return EventType.NACK;  
 		
-		if (message.compareTo(LUCION)==0)
+		
+		if (message.charAt(1)=='1' && message.charAt(5) == '1' && message.charAt(6)== '1') {
+			
+			if (message.charAt(3) == '0')
+				return EventType.LUCE1SPENTA;  
+			else {
+				return EventType.LUCE1ACCESA;
+			}	
+		}
+		
+		if (message.charAt(1)=='1' && message.charAt(5) == '1' && message.charAt(6)== '2') {
+			
+			if (message.charAt(3) == '0')
+				return EventType.LUCE2SPENTA;  
+			else {
+				return EventType.LUCE2ACCESA;
+			}			
+		}
+		
+		if (message.charAt(1)=='1' && message.charAt(5) == '1' && message.charAt(6)== '3') {
+			
+			if (message.charAt(3) == '0')
+				return EventType.LUCE3SPENTA;  
+			else {
+				return EventType.LUCE3ACCESA;
+			}	
+		}
+		if (message.charAt(1)=='1' && message.charAt(5) == '1') {
+			if (message.charAt(3) == '0')
+				return EventType.LUCISPENTE;  
+			else {
+				return EventType.LUCIACCESE;
+			}
+		}
+			
+			
+			
+		/*if (message.compareTo(LUCION)==0)
 			return EventType.LUCIACCESE;  
 		if (message.compareTo(LUCIOFF)==0)
 			return EventType.LUCISPENTE;  
@@ -98,7 +138,7 @@ public class Reader {
 			return EventType.LUCE3ACCESA;  
 		if (message.compareTo(LUCE3OFF)==0)
 			return EventType.LUCE3SPENTA;
-		
+		*/
 		
 		if (message.compareTo(TAPPARELLAALZATA)==0)
 			return EventType.TAPPARELLASU;  
@@ -108,7 +148,7 @@ public class Reader {
 			return EventType.TAPPARELLASTOP;
 		
 	
-	return null;
+	return EventType.ACK;
 	}
 	
 	

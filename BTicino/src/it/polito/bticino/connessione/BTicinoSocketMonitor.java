@@ -7,7 +7,7 @@ import java.io.PrintWriter;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
-
+import java.util.List;
 
 import it.polito.bticino.lib.Model;
 import it.polito.bticino.reader.Reader;
@@ -78,9 +78,17 @@ public class BTicinoSocketMonitor extends Socket implements Runnable{
 	@Override
 	public void run() {
 		this.apriSessioneEventi();
-		this.readInput();
+		while(sessioneEventi==true)
+			this.readInput();
 		
 	}
+	
+	
+
+	public void setSessioneEventi(boolean sessioneEventi) {
+		this.sessioneEventi = sessioneEventi;
+	}
+
 
 	/**
 	 * Metodo che apre un sessione di eventi con il Gateway BTicino
@@ -108,10 +116,13 @@ public class BTicinoSocketMonitor extends Socket implements Runnable{
 			
 			// Interpretazione risposta del Gateway
     			String rispDalServer = String.format("%s", String.copyValueOf(cbs));
-    			EventType evento = reader.interpretaMessagio(rispDalServer);
-			if (evento == EventType.ACK) {
-				sessioneEventi = true;
-			}
+
+				List<String> msgscmp = reader.scomponiMessaggio(rispDalServer); 
+				for (String stringa: msgscmp) {
+					EventType evento = reader.interpretaMessagio(stringa);
+					if (evento == EventType.ACK)
+						this.setSessioneEventi(true);
+				}
 			
 			return sessioneEventi;
 			
@@ -134,34 +145,51 @@ public class BTicinoSocketMonitor extends Socket implements Runnable{
 		if (!sockMonitor.isConnected()) {
 			System.err.println("Connetti prima il socket tramite Model");
 		}
-		while(sessioneEventi == true) {
+		while(sessioneEventi==true && !sockMonitor.isClosed() ) {
 			
 			try {
 				
 				// Input dal server
-				int risp = bf.read(cbs);
+				bf.read(cbs);
 				
 				// Interpretazione risposta del Gateway
 				String rispDalServer = String.format("%s", String.copyValueOf(cbs));
-				System.out.println(rispDalServer);
-				EventType evento = reader.interpretaMessagio(rispDalServer);
 				
-				model.setStatoOggetto(evento);
-	    			
-	    			if (risp == -1) {
-	    				this.outToServer.close();
-	    				this.inputStreamReader.close();
-	    				this.bf.close();
-	    				this.close();
-	    			}
+				List<String> msgscmp = reader.scomponiMessaggio(rispDalServer); 
+				for (String stringa: msgscmp) {
+					EventType evento = reader.interpretaMessagio(stringa);
+					model.setStatoOggetto(evento);
+					model.controller.setStatusLabel();
+				}
+				
 	    			
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 			
 		}
+		
+		
+		if (sessioneEventi == false ) {
+			try {
+				outToServer.close();
+				inputStreamReader.close();
+				bf.close();
+				this.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			
+			
+		}
 	}
 
+	
+	 public void stopRunning(){
+		this.setSessioneEventi(false);
+	 }
 	
 	
 	/**
@@ -169,6 +197,7 @@ public class BTicinoSocketMonitor extends Socket implements Runnable{
 	 */
 	public void close() {
 		if (this.sockMonitor.isConnected()) {
+			
 			try {
 				sockMonitor.close();
 			} catch (IOException e) {

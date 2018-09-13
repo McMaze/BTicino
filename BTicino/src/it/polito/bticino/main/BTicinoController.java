@@ -2,6 +2,9 @@ package it.polito.bticino.main;
 
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import it.polito.bticino.lib.Model;
 import javafx.event.ActionEvent;
@@ -16,7 +19,9 @@ public class BTicinoController {
 	
 	public Model model; 
 	public Thread comandi;
-	//public Thread eventi;
+	public Thread eventi;
+	
+	public static boolean inizializzazione = false;
 	
     @FXML // ResourceBundle that was given to the FXMLLoader
     private ResourceBundle resources;
@@ -74,89 +79,134 @@ public class BTicinoController {
 
     @FXML
     void luceGeneraleOff(ActionEvent event) {
+    		if (model.getLuceGenerale()!=null) {
     		model.getLuceGenerale().TurnOff();
+    		}
     }
 
     @FXML
     void luceGeneraleOn(ActionEvent event) {
-    		model.getLuceGenerale().TurnOn();
+    		if(model.getLuceGenerale()!=null) {
+    			model.getLuceGenerale().TurnOn();
+    		}
     }
     
     
     @FXML
     void luceUnoOff(ActionEvent event) {
-    		model.getLuce1().TurnOff();
-    		// sincronizzazione ? 
-    		this.statusLuce1.setText(model.getLuce1().getStato().getStatusName().toString());
+	    	if(model.getLuce1()!=null) {
+	    		model.getLuce1().TurnOff();
+	    		this.statusLuce1.setText(model.getLuce1().getStato().toString());
+	    }
     }
 
     @FXML
     void luceUnoOn(ActionEvent event) {
-    		model.getLuce1().TurnOn();
-    		// sincronizzazione ?
-    		this.statusLuce1.setText(model.getLuce1().getStato().getStatusName().toString());
+    		if(model.getLuce1()!=null) {
+	    		model.getLuce1().TurnOn();
+	    		this.statusLuce1.setText(model.getLuce1().getStato().toString());
+    		}
     }
 
     @FXML
     void luceDueOff(ActionEvent event) {
-    		model.getLuce2().TurnOff();
-    		// sincronizzazione ?
-    		this.statusLuce2.setText(model.getLuce2().getStato().getStatusName().toString());
+	    	if(model.getLuce2()!=null) {
+	    		model.getLuce2().TurnOff();
+	    		this.statusLuce2.setText(model.getLuce2().getStato().toString());
+	    	}
     }
 
     @FXML
     void luceDueOn(ActionEvent event) {
-    		model.getLuce2().TurnOn();
-    		// sincronizzazione ?
-    		this.statusLuce2.setText(model.getLuce2().getStato().getStatusName().toString());
+	    	if(model.getLuce2()!=null) {
+	    		model.getLuce2().TurnOn();
+	    		this.statusLuce2.setText(model.getLuce2().getStato().toString());
+	    		
+	    	}
     }
     
     
     @FXML
     void luceTreOff(ActionEvent event) {
-    		model.getLuce3().TurnOff();
-    		// sincronizzazione ?
-    		this.statusLuce3.setText(model.getLuce3().getStato().getStatusName().toString());
+    		if(model.getLuce3()!=null) {
+	    		model.getLuce3().TurnOff();
+	    		this.statusLuce3.setText(model.getLuce3().getStato().toString());
+    		}
     	}
 
     @FXML
     void luceTreOn(ActionEvent event) {
-    		model.getLuce3().TurnOn();
-    		// sincronizzazione ?
-    		this.statusLuce3.setText(model.getLuce3().getStato().getStatusName().toString());
+	    	if(model.getLuce3()!=null) {
+	    		model.getLuce3().TurnOn();
+	    		this.statusLuce3.setText(model.getLuce3().getStato().toString());
+	    	}
     }
 
     @FXML
     void tapparellaDown(ActionEvent event) {
-    		model.getTapparella().down();
+    		if(model.getTapparella()!=null) {
+    			model.getTapparella().down();
+    			this.statusTapparella.setText(model.getTapparella().getStato().toString());
+    		}
     }
 
     @FXML
     void tapparellaStop(ActionEvent event) {
-    		model.getTapparella().stop();
+	    	if(model.getTapparella()!=null) {
+	    		model.getTapparella().stop();
+	    		this.statusTapparella.setText(model.getTapparella().getStato().toString());
+	    	}
     }
 
     @FXML
     void tapparellaUp(ActionEvent event) {
-    		model.getTapparella().up();
+	    	if(model.getTapparella()!=null) {
+	    		model.getTapparella().up();
+	    		this.statusTapparella.setText(model.getTapparella().getStato().toString());
+	    	}
     }
 
     
-    void set(Model model, Thread threadComandi) {
+    public void set(Model model) {
     		this.model = model;
-    		this.comandi = threadComandi;
-    		this.setStausLabel();	
+    		
+    		if (inizializzazione==true)
+    			this.setStatusLabel();
     }
 
-
-	private void setStausLabel() {
-		this.statusLuce1.setText(this.model.getLuce1().getStato().getStatusName().toString());
-		this.statusLuce2.setText(this.model.getLuce2().getStato().getStatusName().toString());
-		this.statusLuce3.setText(this.model.getLuce3().getStato().getStatusName().toString());
-		this.statusTapparella.setText(this.model.getTapparella().getStato().getStatusName().toString());
-		
+    
+	public void  setStatusLabel() {
+		this.statusTapparella.setText(this.model.getTapparella().getStato().toString());
+		this.statusLuce1.setText(this.model.getLuce1().getStato().toString());
+		this.statusLuce2.setText(this.model.getLuce2().getStato().toString());
+		this.statusLuce3.setText(this.model.getLuce3().getStato().toString());
 		model.setStatoLuceGenerale();
-		this.statusLuceGenerale.setText(this.model.getLuce3().getStato().getStatusName().toString());
+		this.statusLuceGenerale.setText(this.model.getLuceGenerale().getStato().getStatusName().toString());
+
+		return;
+		
+	}
+	
+	
+	private ScheduledExecutorService timer;
+	
+	void updateLabel()
+	{
+		//if (TisAlive()){
+			Runnable tagUpdate = new Runnable() {	
+				@Override
+				public void run(){
+					setStatusLabel();
+				}
+			};
+				
+			this.timer = Executors.newSingleThreadScheduledExecutor();
+			this.timer.scheduleAtFixedRate(tagUpdate, 0, 10, TimeUnit.MILLISECONDS);
+				
+		/*} else {
+			// log the error
+			System.err.println("Impossibile aggiornare: nessuna sessione eventi attiva.");
+		}*/
 	}
 
 	@FXML // This method is called by the FXMLLoader when initialization is complete
@@ -176,6 +226,14 @@ public class BTicinoController {
         assert statusLuce3 != null : "fx:id=\"statusLuce3\" was not injected: check your FXML file 'BTicinoGest.fxml'.";
         assert statusTapparella != null : "fx:id=\"statusTapparella\" was not injected: check your FXML file 'BTicinoGest.fxml'.";
 
+	}
+
+	public void setClosed() {
+		model.sockMonitor.stopRunning();
+		
+		//model.sockMonitor.close();
+		//model.sock.close();
+		
 	}
 	
 	

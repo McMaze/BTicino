@@ -21,6 +21,11 @@ public class LightStatus {
 	public int getNumber() {
 		return number;
 	}
+
+	@Override
+	public String toString() {
+		return ""+statusName ;
+	}
 	
 	
 }

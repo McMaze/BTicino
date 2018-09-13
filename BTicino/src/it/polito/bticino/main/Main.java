@@ -2,10 +2,12 @@ package it.polito.bticino.main;
 	
 import it.polito.bticino.lib.Model;
 import javafx.application.Application;
+import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 
 public class Main extends Application {
@@ -16,18 +18,29 @@ public class Main extends Application {
 			BorderPane root = (BorderPane)loader.load();
 			BTicinoController controller = loader.getController();
 			
-			Thread t = Thread.currentThread();
-			t.setName("comandi");
+				Thread t = Thread.currentThread();
+				t.setName("current");
+				
+				Model model = new Model(controller);
+				controller.set(model);
+				
+				Scene scene = new Scene(root);
+				primaryStage.setScene(scene);
+				primaryStage.show();
+				
+				if (BTicinoController.inizializzazione==true) {
+					Thread eventi = new Thread (model.sockMonitor, "eventi");
+					eventi.start();
+					//controller.updateLabel();
+					}
 			
-			Model model = new Model();
-			controller.set(model, t );
-			Scene scene = new Scene(root);
-			primaryStage.setScene(scene);
-			primaryStage.show();
-			
-			Thread eventi = new Thread (model.sockMonitor, "eventi");
-    			eventi.start();
-			
+		
+    			primaryStage.setOnCloseRequest((new EventHandler<WindowEvent>() {
+    				public void handle(WindowEvent we){
+    					model.sockMonitor.stopRunning();
+    				}
+    			}));
+    			
 		} catch(Exception e) {
 			e.printStackTrace();
 		}

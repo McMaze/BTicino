@@ -6,6 +6,7 @@ import it.polito.bticino.connessione.*;
 import it.polito.bticino.lib.AutomationStatus.AutomationStatusName;
 import it.polito.bticino.lib.LightStatus.LightStatusName;
 import it.polito.bticino.lib.Who.WhoName;
+import it.polito.bticino.main.BTicinoController;
 import it.polito.bticino.reader.Reader;
 import it.polito.bticino.reader.Reader.EventType;
 
@@ -16,6 +17,7 @@ public class Model {
 	public BTicinoSocket sock;
 	public BTicinoSocketMonitor sockMonitor;
 	public Reader reader;
+	public BTicinoController controller;
 	
 	private Map<WhoName, Who> who;
 	private Light luceGenerale;
@@ -25,10 +27,11 @@ public class Model {
 	private Automation tapparella;
 	
 	
-	public Model() {
+	public Model(BTicinoController controller) {
 		
+		this.controller = controller;
 		reader = new Reader(this);
-		boolean isSockConnected = this.creaSocket(reader);
+		boolean isSockConnected = this.creaSocket(reader, this);
 		boolean isSockMonConnected = this.creaSocketMonitor(reader, this);
 		
 		if (isSockConnected == false ) {
@@ -39,13 +42,64 @@ public class Model {
 			System.err.println("Impossibile stabilire una sessione di eventi");
 		} else {
 			this.creaOggetti();
-			this.getStati();
+			sock.getStati();
 		}
+		
+			
 	}
 	
 
-	public  void setStatoOggetto(EventType stato) {
+	public boolean creaSocket(Reader reader, Model model) {
+		sock = new BTicinoSocket(reader, model);
+		
+		//Invio il messaggio per stabilire una sessione di comandi
+		boolean sessioneComandi = sock.apriSessioneComandi();
+		
+		if (sessioneComandi == true)
+			return true;
+		
+		return false;
+	}
+
+
+	public boolean creaSocketMonitor(Reader reader, Model model) {
+		sockMonitor = new BTicinoSocketMonitor(reader, model);
+		
+		//Invio il messaggio per stabilire una sessione di comandi
+		boolean sessioneEventi = sockMonitor.apriSessioneEventi();
+		
+		if (sessioneEventi == true) {
+			return true;
+		}
+		
+		return false;
+	}
 	
+	public void creaOggetti() {
+		who = new TreeMap<>();
+		
+		//aggiungo impianto luci
+		who.put(WhoName.LIGHTING, new Who(WhoName.LIGHTING, 1));
+		
+		luceGenerale = new Light(1, "luceGenerale", this);
+		luce1 = new Light(11, "luce1", this);
+		luce2 = new Light(12, "luce2", this);
+		luce3 = new Light(13, "luce3", this);
+		/*who.get(WhoName.LIGHTING).getOggetti().put("luceGenerale", luceGenerale);
+		who.get(WhoName.LIGHTING).getOggetti().put("luce1", luce1);
+		who.get(WhoName.LIGHTING).getOggetti().put("luce2", luce2);
+		who.get(WhoName.LIGHTING).getOggetti().put("luce3", luce3);*/
+		
+		//aggiungo impianto automazione
+		who.put(WhoName.AUTOMATION, new Who(WhoName.AUTOMATION, 2));
+
+		tapparella = new Automation(21, "tapparella", this);
+		/*who.get(WhoName.AUTOMATION).getOggetti().put("tapparella", tapparella);*/
+		
+	}
+	
+
+	public void setStatoOggetto(EventType stato) {
 			
 			if (stato== EventType.ACK) {
 				
@@ -93,71 +147,25 @@ public class Model {
 			if (stato == EventType.TAPPARELLASTOP) {
 				this.getTapparella().setStato(this.getTapparella().getWhat().get(AutomationStatusName.STOP));
 			}
+				
 	}
-
-
+	
 	
 
-
-	private boolean creaSocket(Reader reader) {
-		sock = new BTicinoSocket(reader);
-		
-		//Invio il messaggio per stabilire una sessione di comandi
-		boolean sessioneComandi = sock.apriSessioneComandi();
-		
-		if (sessioneComandi == true)
-			return true;
-		
-		return false;
-	}
-
-
-	private boolean creaSocketMonitor(Reader reader, Model model) {
-		sockMonitor = new BTicinoSocketMonitor(reader, model);
-		
-		//Invio il messaggio per stabilire una sessione di comandi
-		boolean sessioneEventi = sockMonitor.apriSessioneEventi();
-		
-		if (sessioneEventi == true) {
-			return true;
+	public void setStatoLuceGenerale() {
+		if (this.getLuce1().getStato()!=null && this.getLuce2().getStato()!=null && this.getLuce3().getStato()!=null) {
+			if ( this.getLuce1().getStato().getStatusName() == LightStatusName.ON &&
+				this.getLuce2().getStato().getStatusName() == LightStatusName.ON	&&
+				this.getLuce2().getStato().getStatusName() == LightStatusName.ON	) {
+				
+				this.getLuceGenerale().setStato(this.luceGenerale.getWhat().get(LightStatusName.ON));
+			}
+			else {
+				this.getLuceGenerale().setStato(this.luceGenerale.getWhat().get(LightStatusName.OFF));
+			}
+				
 		}
-		
-		return false;
-	}
-	
-	
-	public void creaOggetti() {
-		who = new TreeMap<>();
-		
-		//aggiungo impianto luci
-		who.put(WhoName.LIGHTING, new Who(WhoName.LIGHTING, 1));
-		
-		luceGenerale = new Light(1, "luceGenerale", this);
-		luce1 = new Light(11, "luce1", this);
-		luce2 = new Light(12, "luce2", this);
-		luce3 = new Light(13, "luce3", this);
-		who.get(WhoName.LIGHTING).getOggetti().put("luceGenerale", luceGenerale);
-		who.get(WhoName.LIGHTING).getOggetti().put("luce1", luce1);
-		who.get(WhoName.LIGHTING).getOggetti().put("luce2", luce2);
-		who.get(WhoName.LIGHTING).getOggetti().put("luce2", luce3);
-		
-		//aggiungo impianto automazione
-		who.put(WhoName.AUTOMATION, new Who(WhoName.AUTOMATION, 2));
-
-		tapparella = new Automation(21, "tapparella", this);
-		who.get(WhoName.AUTOMATION).getOggetti().put("tapparella", tapparella);
-		
-	}
-	
-	public void getStati() {
-		
-		// setto gli stati di partenza degli oggetti
-		List<EventType> stati = new ArrayList<EventType>(sock.getStati());
-		for (EventType stato : stati) {
-			this.setStatoOggetto(stato);
-		}
-		
-	}
+	}	
 	
 	public void readSockMonitor() {
 		sockMonitor.readInput();
@@ -202,21 +210,10 @@ public class Model {
 	}
 
 
-	public void setStatoLuceGenerale() {
-		if (this.getLuce1().getStato()!=null && this.getLuce2().getStato()!=null && this.getLuce3()!=null) {
-			if ( this.getLuce1().getStato().getStatusName() == LightStatusName.ON &&
-				this.getLuce2().getStato().getStatusName() == LightStatusName.ON	&&
-				this.getLuce2().getStato().getStatusName() == LightStatusName.ON	) {
-				
-				this.getLuceGenerale().setStato(this.luceGenerale.getWhat().get(LightStatusName.ON));
-			}
-			else {
-				this.getLuceGenerale().setStato(this.luceGenerale.getWhat().get(LightStatusName.OFF));
-			}
-				
-		}
+	public void close() {
+		//sock.close();
+		sockMonitor.close();
 		
 	}
-
 	
 }
