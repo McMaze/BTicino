@@ -189,10 +189,9 @@ public class BTicinoController {
 	
 	
 	private ScheduledExecutorService timer;
-	
-	void updateLabel()
+	public void updateLabel()
 	{
-		//if (TisAlive()){
+		//if (eventi.isAlive()){
 			Runnable tagUpdate = new Runnable() {	
 				@Override
 				public void run(){

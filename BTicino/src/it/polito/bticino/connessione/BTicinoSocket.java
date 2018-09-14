@@ -146,16 +146,23 @@ public class BTicinoSocket extends Socket{
 				// Viene settato il messaggio/riga da inviare al server
 				outToServer.write(message);
 				outToServer.flush();
+				System.out.println("Comando");
 				
 				
-				// Input dal server
+				 // Input dal server
+				cbs = new char[1024];
 				bf.read(cbs);
 				
 				// Interpretazione risposta del Gateway
 	    			String rispDalServer = String.format("%s", String.copyValueOf(cbs));
 	    			List<String> msgscmp = reader.scomponiMessaggio(rispDalServer); 
 					for (String stringa: msgscmp) {
-						EventType evento = reader.interpretaMessagio(stringa);
+						System.out.println("Socket comandi : "+stringa);
+						reader.interpretaMessagio(stringa);
+					
+						/*EventType evento = reader.interpretaMessagio(stringa);
+						if (evento == EventType.ACK)*/
+							
 					}
 				
 			}
@@ -171,10 +178,11 @@ public class BTicinoSocket extends Socket{
 	
 	/**
 	 * Metodo per interrogare sullo stato di tutti gli oggetti 
+	 * 
 	 * @return
 	 */
 	
-	public List<EventType> getStati() {
+	public List<EventType> getStati() { // cambiare a funzione VOID !!
 		List<String> stati = new ArrayList<>();
 		
 		stati.add("*#2*21##");
@@ -201,6 +209,7 @@ public class BTicinoSocket extends Socket{
 				outToServer.flush();
 				
 				// Input dal server
+				cbs = new char[1024];
 				bf.read(cbs);
 				
 				//  Interpretazione risposta del Gateway
@@ -231,8 +240,10 @@ public class BTicinoSocket extends Socket{
 	public void close() {
 		if (this.sock.isConnected()) {
 			try {
-				
 				sock.close();
+				if (sock.isClosed()) {
+					System.out.println("Socket della sessione comandi chiuso con successo.");
+				}
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

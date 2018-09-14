@@ -30,7 +30,8 @@ public class Model {
 	public Model(BTicinoController controller) {
 		
 		this.controller = controller;
-		reader = new Reader(this);
+		this.reader = new Reader(this);
+		
 		boolean isSockConnected = this.creaSocket(reader, this);
 		boolean isSockMonConnected = this.creaSocketMonitor(reader, this);
 		
@@ -41,10 +42,10 @@ public class Model {
 		if (isSockMonConnected == false) {
 			System.err.println("Impossibile stabilire una sessione di eventi");
 		} else {
+			
 			this.creaOggetti();
 			sock.getStati();
 		}
-		
 			
 	}
 	
@@ -207,6 +208,10 @@ public class Model {
 
 	public BTicinoSocketMonitor getSocketMonitor() {
 		return this.sockMonitor;
+	}
+
+	public BTicinoController getController() {
+		return controller;
 	}
 
 

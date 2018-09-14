@@ -18,9 +18,7 @@ public class Main extends Application {
 			BorderPane root = (BorderPane)loader.load();
 			BTicinoController controller = loader.getController();
 			
-				Thread t = Thread.currentThread();
-				t.setName("current");
-				
+	
 				Model model = new Model(controller);
 				controller.set(model);
 				
@@ -37,7 +35,9 @@ public class Main extends Application {
 		
     			primaryStage.setOnCloseRequest((new EventHandler<WindowEvent>() {
     				public void handle(WindowEvent we){
-    					model.sockMonitor.stopRunning();
+    					model.getSocketMonitor().stopRunning();
+    					model.getSocket().close();
+    					
     				}
     			}));
     			

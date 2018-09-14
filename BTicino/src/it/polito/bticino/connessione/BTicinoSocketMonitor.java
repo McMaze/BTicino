@@ -110,7 +110,7 @@ public class BTicinoSocketMonitor extends Socket implements Runnable{
 			outToServer.write(openSession);
 			outToServer.flush();
 			
-			
+			cbs = new char[1024];
 			// Input dal server
 			bf.read(cbs);
 			
@@ -148,7 +148,7 @@ public class BTicinoSocketMonitor extends Socket implements Runnable{
 		while(sessioneEventi==true && !sockMonitor.isClosed() ) {
 			
 			try {
-				
+				cbs = new char[1024];
 				// Input dal server
 				bf.read(cbs);
 				
@@ -159,7 +159,7 @@ public class BTicinoSocketMonitor extends Socket implements Runnable{
 				for (String stringa: msgscmp) {
 					EventType evento = reader.interpretaMessagio(stringa);
 					model.setStatoOggetto(evento);
-					model.controller.setStatusLabel();
+					model.getController().setStatusLabel();
 				}
 				
 	    			
@@ -200,6 +200,9 @@ public class BTicinoSocketMonitor extends Socket implements Runnable{
 			
 			try {
 				sockMonitor.close();
+				if (sockMonitor.isClosed()) {
+					System.out.println("Socket della sessione eventi chiuso con successo.");
+				}
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

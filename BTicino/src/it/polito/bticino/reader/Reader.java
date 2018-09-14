@@ -37,18 +37,6 @@ public class Reader {
 		this.model = model;
 	}
 
-	
-	public List<EventType> readMessage(String message) {
-		
-		//List<String> inputs = new ArrayList<String> (this.scomponiMessaggio(message));
-		List<EventType> eventi = new ArrayList<EventType>();
-		
-		EventType etype = this.interpretaMessagio(message);
-		eventi.add(etype);
-		
-		return eventi;
-	}
-
 	public List<String> scomponiMessaggio(String message){
 		List<String> lista = new ArrayList<String>();
 		
@@ -68,13 +56,12 @@ public class Reader {
 		} catch (NoSuchElementException e) {
 			
 		}
+		
 		return lista;
 	}
 	
 	public EventType interpretaMessagio (String m) {
 		String message = m.trim();
-		
-
 		
 		if (message.compareTo(ACK)==0)
 			return EventType.ACK;
